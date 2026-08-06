@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>notepad</title>
+</head>
+<style type="text/css">
+ol,ul{
+display:block;
+list-style-type:none;
+margin:3px;
+}
+</style><body>
+<div>async function getLeads() {<br>
+&nbsp; const city = document.getElementById("city").value;<br>
+&nbsp; const type = document.getElementById("type").value;<br>
+&nbsp; const limit = document.getElementById("limit").value;<br>
+<br>
+&nbsp; const query = `<br>
+&nbsp; [out:json][timeout:25];<br>
+&nbsp; area["name"="${city}"]-&gt;.searchArea;<br>
+&nbsp; (<br>
+&nbsp;&nbsp;&nbsp; node["amenity"="${type}"](area.searchArea);<br>
+&nbsp;&nbsp;&nbsp; node["shop"](area.searchArea);<br>
+&nbsp; );<br>
+&nbsp; out ${limit};<br>
+&nbsp; `;<br>
+<br>
+&nbsp; const res = await fetch("https://overpass-api.de/api/interpreter", {<br>
+&nbsp;&nbsp;&nbsp; method: "POST",<br>
+&nbsp;&nbsp;&nbsp; body: query<br>
+&nbsp; });<br>
+<br>
+&nbsp; const json = await res.json();<br>
+<br>
+&nbsp; const table = document.getElementById("data");<br>
+&nbsp; table.innerHTML = "";<br>
+<br>
+&nbsp; json.elements.forEach(el =&gt; {<br>
+&nbsp;&nbsp;&nbsp; const name = el.tags?.name || "&#1594;&#1610;&#1585; &#1605;&#1593;&#1585;&#1608;&#1601;";<br>
+<br>
+&nbsp;&nbsp;&nbsp; table.innerHTML += `<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td&gt;${name}&lt;/td&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;button onclick="sendToSheet('${name}')"&gt;&#1581;&#1601;&#1592;&lt;/button&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;button onclick="sendWhatsApp('${name}')"&gt;&#1608;&#1575;&#1578;&#1587;&#1575;&#1576;&lt;/button&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/td&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/tr&gt;<br>
+&nbsp;&nbsp;&nbsp; `;<br>
+&nbsp; });<br>
+}<br>
+<br>
+// &#128293; Google Sheets<br>
+async function sendToSheet(name) {<br>
+&nbsp; const webhook = "PUT_YOUR_GOOGLE_SCRIPT_URL";<br>
+<br>
+&nbsp; await fetch(webhook, {<br>
+&nbsp;&nbsp;&nbsp; method: "POST",<br>
+&nbsp;&nbsp;&nbsp; body: JSON.stringify([{name: name}])<br>
+&nbsp; });<br>
+<br>
+&nbsp; alert("&#1578;&#1605; &#1575;&#1604;&#1581;&#1601;&#1592; &#1601;&#1610; Google Sheets");<br>
+}<br>
+<br>
+// &#128242; WhatsApp<br>
+function sendWhatsApp(name) {<br>
+&nbsp; const msg = `&#1605;&#1585;&#1581;&#1576;&#1575; &#128075;<br>
+&#1604;&#1575;&#1581;&#1592;&#1606;&#1575; &#1606;&#1588;&#1575;&#1591;&#1603;&#1605; (${name})<br>
+<br>
+&#1606;&#1602;&#1583;&#1585; &#1606;&#1587;&#1575;&#1593;&#1583;&#1603;&#1605; &#1601;&#1610;:<br>
+&#10004;&#65039; &#1586;&#1610;&#1575;&#1583;&#1577; &#1575;&#1604;&#1593;&#1605;&#1604;&#1575;&#1569;<br>
+&#10004;&#65039; &#1578;&#1581;&#1587;&#1610;&#1606; &#1575;&#1604;&#1578;&#1587;&#1608;&#1610;&#1602;<br>
+<br>
+&#1607;&#1604; &#1605;&#1606;&#1575;&#1587;&#1576; &#1606;&#1578;&#1608;&#1575;&#1589;&#1604;&#1567;`;<br>
+<br>
+&nbsp; const phone = "966XXXXXXXXX";<br>
+<br>
+&nbsp; const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;<br>
+&nbsp; window.open(url, "_blank");<br>
+}</div>
+</body>
+</html>
